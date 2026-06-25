@@ -1,0 +1,251 @@
+NASIR KOBBY KORANTENG
+18382028
+COHORT A
+
+MariaDB [(none)]> CREATE TABLE Department(deptNo INT PRIMARY KEY, deptName VARCHAR(100) NOT NULL, mgrEmpNo INT);
+ERROR 1046 (3D000): No database selected
+MariaDB [(none)]> Create database projectSchema;
+Query OK, 1 row affected (0.009 sec)
+
+MariaDB [(none)]> Use projectSchema;
+Database changed
+MariaDB [projectSchema]> Create Table Department(deptNo INT PRIMARY KEY, deptName VARCHAR(100) NOT NULL, mgrEmpno INT);
+Query OK, 0 rows affected (0.044 sec)
+
+MariaDB [projectSchema]> Create Table Employee (empNo INT PRIMARY KEY, fName VARCHAR(50) NOT NULL, lName VARCHAR(50) NOT NULL, address VARCHAR(150), DOB DATE, sex CHAR(1) NOT NULL CHECK (sex IN ('M', 'F')), position VARCHAR(50) CHECK (position IN ('Manager', 'Team Leader', 'Analyst', 'Software Developer')), deptNo INT, FOREIGN KEY (deptNo) REFERENCES Department(deptNo));
+Query OK, 0 rows affected (0.031 sec)
+
+MariaDB [projectSchema]> ALTER TABLE Department
+    -> ADD CONSTRAINT fk_dept_manager
+    -> FOREIGN KEY (mgrEmpNo) REFERENCES Employee(empNo);
+Query OK, 0 rows affected (0.056 sec)              
+Records: 0  Duplicates: 0  Warnings: 0
+
+MariaDB [projectSchema]> Create Table Project( projNO INT PRIMARY KEY, projName VARCHAR(100) NOT NULL, deptNo INT, FOREIGN KEY (deptNo) REFERENCES Department(deptNo));
+Query OK, 0 rows affected (0.029 sec)
+
+MariaDB [projectSchema]> Create Table WorksOn (empNo INT, projNo INT, dateWorked DATE, hoursWorked INT CHECK (hoursWorked >= 0 AND hoursWorked <= 40), PRIMARY KEY (empNo, projNo, dateWorked), FOREIGN KEY (empNo) REFERENCES Employee(empNo), FOREIGN KEY (projNo) REFERENCES Project(projNo));
+Query OK, 0 rows affected (0.029 sec)
+
+MariaDB [projectSchema]> CREATE VIEW FemaleManagerProjects AS SELECT
+    -> p.projNO, p.projName, p.deptNo
+    -> FROM Project p
+    -> Join Department d ON p.deptNo = d.deptNo
+    -> JOIN Employee e ON d.mgrEmpNo = e.empNo
+    -> WHERE e.sex = 'F'
+    -> ORDER BY p.projNO;
+Query OK, 0 rows affected (0.032 sec)
+
+MariaDB [projectSchema]> INSERT INTO Department (deptNO, deptName) VALUES
+    -> (1, 'Engineering'),
+    -> (2, 'Finance'),
+    -> (3, 'Marketing');
+Query OK, 3 rows affected (0.005 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+MariaDB [projectSchema]> INSERT INTO Employee VALUES
+    -> (1, 'Ama', 'Owusu', 'Accra', '1990-05-01', 'F', 'Manager', 1),
+    -> (2, 'Kofi', 'Mensah', 'Kumasi', '1985-03-15', 'M', 'Team Leader', 1),
+    -> (3, 'Abena', 'Asante', 'Takoradi', '1992-07-20', 'F', 'Analyst', 2),
+    -> (4, 'Kwame', 'Boateng', 'Accra', '1988-11-30', 'M', 'Software Developer', 2),
+    -> (5, 'Yaa', 'Darko', 'Cape Coast', '1995-01-10', 'F', 'Manager', 3); 
+Query OK, 5 rows affected (0.002 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+MariaDB [projectSchema]> UPDATE Department SET mgrEmpNo = 1 WHERE deptNo = 1;
+Query OK, 1 row affected (0.002 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [projectSchema]> UPDATE Department SET mgrEmpNo = 3 WHERE deptNo = 2;
+Query OK, 1 row affected (0.001 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [projectSchema]> UPDATE Department SET mgrEmpNo = 5 WHERE deptNo = 3;
+Query OK, 1 row affected (0.002 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [projectSchema]> INSERT INTO Project VALUES
+    -> (101, 'SystemX', 1),
+    -> (102, 'BudgetTool', 2),
+    -> (103, 'AdCampaign', 3),
+    -> (104, 'NetworkUpgrade', 1);
+Query OK, 4 rows affected (0.001 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+MariaDB [projectSchema]> INSERT INTO WorksOn VALUES
+    -> (1, 101, '2025-01-10', 8),
+    -> (1, 101, '2025-01-11', 7),
+    -> (2, 101, '2025-01-10', 6),
+    -> (2, 104, '2025-01-12', 8),
+    -> (3, 102, '2025-01-10', 5),
+    -> (3, 102, '2025-01-11', 8),
+    -> (4, 102, '2025-01-10', 7),
+    -> (5, 103, '2025-01-10', 6),
+    -> (1, 104, '2025-01-13', 8);
+Query OK, 9 rows affected (0.001 sec)
+Records: 9  Duplicates: 0  Warnings: 0
+
+MariaDB [projectSchema]> INSERT INTO Part VALUES
+    -> (1, 'ContractA', 1500.00),
+    -> (1, 'ContractB', 800.00),
+    -> (2, 'ContractA', 1200.00),
+    -> (3, 'ContractC', 500.00),
+    -> (4, 'ContractA', 2000.00),
+    -> (4, 'ContractB', 1100.00);
+Query OK, 6 rows affected (0.001 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+MariaDB [projectSchema]> SELECT * FROM FemaleManagerProjects;
++--------+----------------+--------+
+| projNO | projName       | deptNo |
++--------+----------------+--------+
+|    101 | SystemX        |      1 |
+|    102 | BudgetTool     |      2 |
+|    103 | AdCampaign     |      3 |
+|    104 | NetworkUpgrade |      1 |
++--------+----------------+--------+
+4 rows in set (0.001 sec)
+
+MariaDB [projectSchema]> SELECT * FROM FemaleManagerProjects;
++--------+----------------+--------+
+| projNO | projName       | deptNo |
++--------+----------------+--------+
+|    101 | SystemX        |      1 |
+|    104 | NetworkUpgrade |      1 |
+|    102 | BudgetTool     |      2 |
+|    103 | AdCampaign     |      3 |
++--------+----------------+--------+
+4 rows in set (0.003 sec)
+
+MariaDB [projectSchema]> CREATE VIEW EmpProjectDetails AS SELECT 
+    ->     e.empNo,
+    ->     e.fName,
+    ->     e.lName,
+    ->     p.projName,
+    ->     w.hoursWorked
+    -> FROM Employee e
+    -> JOIN WorksOn w ON e.empNo  = w.empNo
+    -> JOIN Project p ON w.projNo = p.projNo;
+Query OK, 0 rows affected (0.023 sec)
+
+MariaDB [projectSchema]> SELECT * FROM EmpProjectDetails;
++-------+-------+---------+----------------+-------------+
+| empNo | fName | lName   | projName       | hoursWorked |
++-------+-------+---------+----------------+-------------+
+|     1 | Ama   | Owusu   | SystemX        |           8 |
+|     1 | Ama   | Owusu   | SystemX        |           7 |
+|     1 | Ama   | Owusu   | NetworkUpgrade |           8 |
+|     2 | Kofi  | Mensah  | SystemX        |           6 |
+|     2 | Kofi  | Mensah  | NetworkUpgrade |           8 |
+|     3 | Abena | Asante  | BudgetTool     |           5 |
+|     3 | Abena | Asante  | BudgetTool     |           8 |
+|     4 | Kwame | Boateng | BudgetTool     |           7 |
+|     5 | Yaa   | Darko   | AdCampaign     |           6 |
++-------+-------+---------+----------------+-------------+
+9 rows in set (0.001 sec)
+
+MariaDB [projectSchema]> CREATE VIEW EmpProject(empNo, projNo, totalHours) 
+    -> AS SELECT w.empNo, w.projNo, SUM(hoursWorked)
+    -> FROM Employee e, Project p, WorksOn w
+    -> WHERE e.empNo = w.empNo AND p.projNo = w.projNo
+    -> GROUP BY w.empNo, w.projNo;
+Query OK, 0 rows affected (0.024 sec)
+
+MariaDB [projectSchema]> SELECT * FROM EmpProject;
++-------+--------+------------+
+| empNo | projNo | totalHours |
++-------+--------+------------+
+|     1 |    101 |         15 |
+|     1 |    104 |          8 |
+|     2 |    101 |          6 |
+|     2 |    104 |          8 |
+|     3 |    102 |         13 |
+|     4 |    102 |          7 |
+|     5 |    103 |          6 |
++-------+--------+------------+
+7 rows in set (0.001 sec)
+
+MariaDB [projectSchema]> SELECT projNo FROM EmpProject WHERE projNo = 101; 
++--------+
+| projNo |
++--------+
+|    101 |
+|    101 |
++--------+
+2 rows in set (0.002 sec)
+
+MariaDB [projectSchema]> SELECT COUNT(projNo) FROM EmpProject WHERE empNo = 1;
++---------------+
+| COUNT(projNo) |
++---------------+
+|             2 |
++---------------+
+1 row in set (0.001 sec)
+
+MariaDB [projectSchema]> SELECT empNo, totalHours
+    -> FROM EmpProject
+    -> GROUP BY empNo;
+Empty set (0.001 sec)
+
+MariaDB [projectSchema]> SELECT empNo, SUM(totalHours) AS grandTotalHours
+    -> FROM EmpProject
+    -> GROUP BY empNo;
++-------+-----------------+
+| empNo | grandTotalHours |
++-------+-----------------+
+|     1 |              23 |
+|     2 |              14 |
+|     3 |              13 |
+|     4 |               7 |
+|     5 |               6 |
++-------+-----------------+
+5 rows in set (0.002 sec)
+
+MariaDB [projectSchema]> CREATE TABLE Part (partNo INT, contract VARCHAR(50), partCost DECIMAL(10,2), PRIMARY KEY (partNo, contract));
+Query OK, 0 rows affected (0.043 sec)
+
+MariaDB [projectSchema]> CREATE VIEW ExpensiveParts (partNo)
+    -> AS SELECT DISTINCT partNo
+    -> FROM Part
+    -> WHERE partCost > 1000;
+Query OK, 0 rows affected (0.020 sec)
+
+SELECT * FROM ExpensiveParts;
++--------+
+| partNo |
++--------+
+|      1 |
+|      2 |
+|      4 |
++--------+
+3 rows in set (0.001 sec)
+
+MariaDB [projectSchema]> SELECT 'Department' AS 'Table', COUNT(*) AS 'Row Count' FROM Department
+    -> UNION
+    -> SELECT 'Employee', COUNT(*) FROM Employee
+    -> UNION
+    -> SELECT 'Project', COUNT(*) FROM Project
+    -> UNION
+    -> SELECT 'WorksOn', COUNT(*) FROM WorksOn
+    -> UNION
+    -> SELECT 'Part', COUNT(*) FROM Part
+    -> UNION
+    -> SELECT 'FemaleManagerProjects', COUNT(*) FROM FemaleManagerProjects 
+    -> UNION
+    -> SELECT 'EmpProject', COUNT(*) FROM EmpProject
+    -> UNION
+    -> SELECT 'EmpProjectDetails', COUNT(*) FROM EmpProjectDetails;
++-----------------------+-----------+
+| Table                 | Row Count |
++-----------------------+-----------+
+| Department            |         3 |
+| Employee              |         5 |
+| Project               |         4 |
+| WorksOn               |         9 |
+| Part                  |         6 |
+| FemaleManagerProjects |         4 |
+| EmpProject            |         7 |
+| EmpProjectDetails     |         9 |
++-----------------------+-----------+
+8 rows in set (0.008 sec)
+
